@@ -1,0 +1,29 @@
+/**
+ * 起動処理。部品を組み立ててエンジンとパネルを動かすだけで、ロジックは各ファイルにある。
+ * （manifest.json の content_scripts で、このファイルが最後に読み込まれる）
+ */
+(async () => {
+  const G = globalThis.GuideExt;
+  const config = globalThis.GUIDE_SITE_CONFIG;
+
+  const engine = new G.TourEngine({
+    store: G.progressStore,
+    highlighter: G.highlighter,
+    guard: new G.PracticeGuard(),
+    elementTimeoutMs: config.elementTimeoutMs,
+    report: (e) => {
+      // 今はコンソール出力のみ。将来は社内サーバーに送り、セレクタの劣化検知や進捗集計に使う
+      (e.type === 'element-missing' ? console.warn : console.info)('[guide]', e);
+    },
+  });
+
+  G.mountPanel(engine, { title: config.panelTitle, version: chrome.runtime.getManifest().version });
+  G.watchUrl(() => engine.onUrlChange());
+
+  try {
+    const { tours, errors } = await G.loadTours();
+    await engine.init(tours, errors);
+  } catch (e) {
+    engine.fail(`ガイドを読み込めませんでした: ${e.message}`);
+  }
+})();

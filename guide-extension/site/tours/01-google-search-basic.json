@@ -1,0 +1,50 @@
+{
+  "id": "google-search-basic",
+  "title": "Google検索の基本",
+  "description": "キーワードを入力して検索し、結果を確認するまでの流れ",
+  "match": ["https://www.google.com/*", "https://www.google.co.jp/*"],
+  "startPage": "/",
+  "mode": "guide",
+  "steps": [
+    {
+      "id": "welcome",
+      "page": "/",
+      "title": "ようこそ",
+      "content": "このガイドでは、Google で調べものをする基本の流れを実際の画面で練習します。"
+    },
+    {
+      "id": "type-keyword",
+      "page": "/",
+      "target": { "selector": "textarea[name=\"q\"]", "fallbacks": ["input[name=\"q\"]"] },
+      "title": "キーワードを入力",
+      "content": "調べたい言葉を入力してください。<br>例：「新人研修 ビジネスマナー」",
+      "advance": { "type": "input", "minLength": 1 },
+      "side": "bottom"
+    },
+    {
+      "id": "run-search",
+      "page": "/",
+      "target": { "selector": "textarea[name=\"q\"]", "fallbacks": ["input[name=\"q\"]"] },
+      "title": "検索を実行",
+      "content": "<b>Enter キー</b>を押して検索してください。",
+      "advance": { "type": "navigate", "path": "/search*" },
+      "side": "bottom"
+    },
+    {
+      "id": "results",
+      "page": "/search*",
+      "target": { "selector": "#rso", "fallbacks": ["#search", "#center_col"] },
+      "title": "検索結果",
+      "content": "検索結果の一覧です。上から関連性の高い順に並んでいます。タイトルをクリックするとそのページを開けます。",
+      "side": "right"
+    },
+    {
+      "id": "refine",
+      "page": "/search*",
+      "target": { "selector": "textarea[name=\"q\"]", "fallbacks": ["input[name=\"q\"]"] },
+      "title": "キーワードを変えて再検索",
+      "content": "思った結果が出ないときは、ここでキーワードを追加・変更してもう一度検索しましょう。",
+      "side": "bottom"
+    }
+  ]
+}

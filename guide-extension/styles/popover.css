@@ -1,0 +1,53 @@
+/*
+ * Driver.js の吹き出しの見た目調整。
+ * 吹き出しはページの DOM に直接描画されるため、このファイルはページ側の <head> に注入する。
+ * 業務システムの CSS に負けないよう .guide-ext-popover で範囲を限定し、詳細度を上げている。
+ */
+.driver-popover.guide-ext-popover {
+  font-family: system-ui, -apple-system, 'Hiragino Sans', 'Yu Gothic UI', 'Meiryo', sans-serif;
+  border-radius: 12px;
+  padding: 16px 18px 14px;
+  max-width: 340px;
+  min-width: 260px;
+  color: #1f2937;
+  box-shadow: 0 12px 32px rgba(15, 40, 90, 0.22);
+}
+.driver-popover.guide-ext-popover .driver-popover-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1f5fbf;
+}
+.driver-popover.guide-ext-popover .driver-popover-description {
+  font-size: 13px;
+  line-height: 1.6;
+  margin-top: 6px;
+}
+.driver-popover.guide-ext-popover .driver-popover-instruction {
+  margin-top: 10px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: #e0ecff;
+  color: #1f5fbf;
+  font-size: 12px;
+  font-weight: 600;
+}
+.driver-popover.guide-ext-popover .driver-popover-progress-text {
+  font-size: 12px;
+  color: #6b7280;
+}
+.driver-popover.guide-ext-popover .driver-popover-footer button {
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  text-shadow: none;
+  border-radius: 8px;
+  padding: 5px 12px;
+}
+.driver-popover.guide-ext-popover .driver-popover-next-btn {
+  background: #1f5fbf;
+  border-color: #1f5fbf;
+  color: #fff;
+}
+.driver-popover.guide-ext-popover .driver-popover-next-btn:hover {
+  background: #184c9a;
+}

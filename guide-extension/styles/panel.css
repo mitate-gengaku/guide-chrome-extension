@@ -1,0 +1,162 @@
+/* ガイドパネル（Shadow DOM 内で適用されるため、業務システムの CSS とは干渉しない） */
+:host { all: initial; }
+.gx-root {
+  --gx-primary: #1f5fbf;
+  --gx-primary-hover: #184c9a;
+  --gx-practice: #b45309;
+  --gx-practice-bg: #fef3c7;
+  --gx-success: #15803d;
+  --gx-success-bg: #dcfce7;
+  --gx-alert: #b91c1c;
+  --gx-alert-bg: #fee2e2;
+  --gx-info-bg: #e0ecff;
+  --gx-text: #1f2937;
+  --gx-muted: #6b7280;
+  --gx-border: #e5e7eb;
+
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  /* Driver.js のオーバーレイ（z-index: 10000）より上に出す */
+  z-index: 2147483646;
+  font-family: system-ui, -apple-system, 'Hiragino Sans', 'Yu Gothic UI', 'Meiryo', sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--gx-text);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.gx-launcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px 10px 10px;
+  border: none;
+  border-radius: 999px;
+  background: var(--gx-primary);
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(15, 40, 90, 0.25);
+}
+.gx-launcher:hover { background: var(--gx-primary-hover); }
+.gx-launcher-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  font-weight: 700;
+}
+
+.gx-card {
+  width: 340px;
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid var(--gx-border);
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(15, 40, 90, 0.18);
+  overflow: hidden;
+}
+.gx-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px 10px 16px;
+  background: var(--gx-primary);
+  color: #fff;
+}
+.gx-title { font-weight: 700; font-size: 14px; }
+.gx-version { font-weight: 400; font-size: 11px; opacity: 0.75; margin-left: 4px; }
+.gx-icon-btn {
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.gx-icon-btn:hover { background: rgba(255, 255, 255, 0.15); }
+.gx-body { padding: 14px 16px 16px; overflow-y: auto; }
+
+.gx-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.gx-muted { color: var(--gx-muted); margin: 0; }
+.gx-alert, .gx-info, .gx-success { margin: 10px 0 0; padding: 8px 10px; border-radius: 8px; }
+.gx-alert { background: var(--gx-alert-bg); color: var(--gx-alert); }
+.gx-info { background: var(--gx-info-bg); }
+.gx-success { background: var(--gx-success-bg); color: var(--gx-success); margin: 0 0 12px; font-weight: 600; }
+
+.gx-badge { font-size: 11px; font-weight: 600; padding: 1px 8px; border-radius: 999px; white-space: nowrap; }
+.gx-badge-practice { background: var(--gx-practice-bg); color: var(--gx-practice); }
+.gx-badge-done { background: var(--gx-success-bg); color: var(--gx-success); }
+
+.gx-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.gx-item {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 12px;
+  border: 1px solid var(--gx-border);
+  border-radius: 10px;
+}
+.gx-item-main { flex: 1; min-width: 0; }
+.gx-item-title { font-weight: 600; }
+.gx-item-desc { margin: 2px 0 0; color: var(--gx-muted); font-size: 12px; }
+.gx-item-hint { margin: 4px 0 0; color: var(--gx-practice); font-size: 12px; }
+
+.gx-tour-name { font-weight: 700; font-size: 14px; }
+.gx-progress { margin: 10px 0 6px; height: 6px; background: var(--gx-border); border-radius: 999px; overflow: hidden; }
+.gx-progress-bar { height: 100%; background: var(--gx-primary); transition: width 0.3s ease; }
+.gx-step { margin: 0; color: var(--gx-muted); }
+.gx-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; flex-wrap: wrap; }
+
+.gx-btn {
+  font: inherit;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--gx-border);
+  background: #fff;
+  color: var(--gx-text);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.gx-btn:hover:not(:disabled) { background: #f3f4f6; }
+.gx-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.gx-btn-primary { background: var(--gx-primary); border-color: var(--gx-primary); color: #fff; }
+.gx-btn-primary:hover:not(:disabled) { background: var(--gx-primary-hover); }
+.gx-btn-ghost { border-color: transparent; color: var(--gx-muted); }
+
+.gx-toast {
+  max-width: 340px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: var(--gx-practice-bg);
+  color: #78350f;
+  border: 1px solid #fcd34d;
+  font-weight: 600;
+  box-shadow: 0 6px 20px rgba(120, 53, 15, 0.15);
+  animation: gx-in 0.2s ease-out;
+}
+@keyframes gx-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+.gx-load-errors { margin-top: 12px; font-size: 12px; color: var(--gx-alert); }
+.gx-load-errors summary { cursor: pointer; font-weight: 600; }
+.gx-load-errors pre { white-space: pre-wrap; word-break: break-all; background: var(--gx-alert-bg); padding: 8px; border-radius: 8px; margin: 6px 0 0; font-size: 11px; }
+.gx-toast[hidden] { display: none; }
+.gx-diag { margin-top: 10px; padding: 8px 10px; border-radius: 8px; background: #f3f4f6; font-size: 12px; color: var(--gx-text); }
+.gx-diag p { margin: 0 0 6px; }
+.gx-diag ul { margin: 6px 0 0; padding-left: 18px; }
+.gx-diag li { margin-bottom: 6px; }
+.gx-diag code { font-size: 11px; background: #fff; padding: 1px 4px; border-radius: 4px; word-break: break-all; }
+.gx-link-btn { font: inherit; font-size: 11px; color: var(--gx-muted); background: none; border: none; padding: 0 2px; cursor: pointer; text-decoration: underline; }
+.gx-link-btn:hover { color: var(--gx-alert); }

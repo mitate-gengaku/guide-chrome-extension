@@ -1,0 +1,57 @@
+{
+  "id": "google-search-practice",
+  "title": "【練習】検索操作を体験する",
+  "description": "実際には検索を実行せずに、操作の流れだけを練習します",
+  "match": ["https://www.google.com/*", "https://www.google.co.jp/*"],
+  "startPage": "/",
+  "mode": "practice",
+  "blockRules": [
+    {
+      "selector": "textarea[name=\"q\"], input[name=\"q\"]",
+      "events": ["key:Enter"],
+      "message": "練習モードのため検索は実行されません。本番ではここで検索結果の画面に切り替わります。"
+    },
+    {
+      "selector": "input[name=\"btnK\"], input[name=\"btnI\"]",
+      "events": ["click"],
+      "message": "練習モードのためボタンは無効になっています。本番ではここで検索が実行されます。"
+    },
+    {
+      "selector": "form[action=\"/search\"]",
+      "events": ["submit"],
+      "message": "練習モードのため送信は実行されません。"
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "page": "/",
+      "title": "練習モード",
+      "content": "このモードでは<b>検索や送信が実行されません</b>。安心して操作を試してください。"
+    },
+    {
+      "id": "type-keyword",
+      "page": "/",
+      "target": { "selector": "textarea[name=\"q\"]", "fallbacks": ["input[name=\"q\"]"] },
+      "title": "キーワードを入力",
+      "content": "何か言葉を入力してみましょう。",
+      "advance": { "type": "input", "minLength": 1 },
+      "side": "bottom"
+    },
+    {
+      "id": "press-enter",
+      "page": "/",
+      "target": { "selector": "textarea[name=\"q\"]", "fallbacks": ["input[name=\"q\"]"] },
+      "title": "Enter キーを押す",
+      "content": "本番ではここで Enter キーを押すと検索が実行されます。押してみましょう。",
+      "advance": { "type": "key", "key": "Enter" },
+      "side": "bottom"
+    },
+    {
+      "id": "done",
+      "page": "/",
+      "title": "練習完了",
+      "content": "流れは以上です。次は「Google検索の基本」で、実際に検索してみましょう。"
+    }
+  ]
+}
