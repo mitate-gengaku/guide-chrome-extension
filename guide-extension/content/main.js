@@ -17,7 +17,10 @@
     },
   });
 
-  G.mountPanel(engine, { title: config.panelTitle, version: chrome.runtime.getManifest().version });
+  G.mountPanel(engine, {
+    title: config.panelTitle,
+    maxVisibleTours: config.panelMaxVisibleTours ?? 2,
+  });
   G.watchUrl(() => engine.onUrlChange());
 
   try {

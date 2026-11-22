@@ -9,6 +9,9 @@ globalThis.GUIDE_SITE_CONFIG = {
   /** パネルの見出し */
   panelTitle: '新人研修',
 
+  /** パネルのガイド一覧で、スクロールせずに表示する件数。これを超えるとスクロールになる */
+  panelMaxVisibleTours: 2,
+
   /** 対象要素が現れるまで待つ最大時間（ミリ秒）。表示が遅い業務システムでは長めにする */
   elementTimeoutMs: 8000,
 
@@ -19,6 +22,10 @@ globalThis.GUIDE_SITE_CONFIG = {
   tourFiles: [
     'site/tours/01-google-search-basic.json',
     'site/tours/02-google-search-practice.json',
+    'site/tours/03-wikipedia-search.json',
+    'site/tours/04-wikipedia-history.json',
+    'site/tours/05-wikipedia-random.json',
+    'site/tours/06-wikipedia-diff.json',
   ],
 
   /**

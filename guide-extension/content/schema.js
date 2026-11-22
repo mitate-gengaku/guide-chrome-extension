@@ -8,18 +8,22 @@
  *   id, title, description?,
  *   match: ["https://…/*"],          // ツアーを有効にする URL（glob）
  *   startPage?: "/path",              // 開始できる画面のパス（glob）
+ *   startQuery?: { key: "値" },       // 開始できる画面のクエリ（URL の ? 以降）
  *   mode?: "guide" | "practice",      // 既定: guide
  *   blockRules?: [{ selector, events: ["click"|"submit"|"key:Enter"…], message }],
  *   steps: [{
  *     id, title, content,
  *     page?: "/path*",                // このステップを表示する画面のパス（glob）
+ *     pageQuery?: { key: "値" },      // このステップを表示する画面のクエリ（例: { "screen": "order" }）
  *     target?: { selector?, fallbacks?: [..], text? },   // selector と text の少なくとも一方
  *              // selector + text →「selector に一致し、text を含む要素」（例: "button" + "Log in"）
  *     advance?: { type: "next" }                        // 既定
  *             | { type: "click", selector? }
  *             | { type: "input", minLength?, pattern? }
  *             | { type: "key", key }
- *             | { type: "navigate", path },
+ *             | { type: "navigate", path?, query? },     // path と query の少なくとも一方
+ *     skipIf?: { page?, query?, exists? },   // 書いた条件をすべて満たしていたら、このステップを飛ばす
+ *              // exists: 要素のセレクタ、または { selector?, text?, fallbacks? }
  *     side?: "top" | "right" | "bottom" | "left"
  *   }]
  * }
@@ -36,12 +40,28 @@
     const isStr = (v) => typeof v === 'string' && v.length > 0;
     const isObj = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
     const strArray = (v) => Array.isArray(v) && v.length > 0 && v.every(isStr);
+    /** { "キー": "値" } の形か */
+    const checkQuery = (v, path) => {
+      if (v === undefined) return;
+      if (!isObj(v) || Object.keys(v).length === 0 || !Object.values(v).every((x) => typeof x === 'string'))
+        err(path, '{ "キー": "値" } の形で指定してください（例: { "screen": "order" }）');
+    };
+    /** 要素の指定（target / skipIf.exists）の形か */
+    const checkTarget = (v, path) => {
+      if (!isObj(v) || (!isStr(v.selector) && !isStr(v.text)))
+        return err(path, 'selector か text の少なくとも一方を指定してください');
+      if (v.selector !== undefined && !isStr(v.selector)) err(`${path}.selector`, '文字列で指定してください');
+      if (v.text !== undefined && !isStr(v.text)) err(`${path}.text`, '文字列で指定してください');
+      if (v.fallbacks !== undefined && !strArray(v.fallbacks)) err(`${path}.fallbacks`, '文字列の配列で指定してください');
+    };
 
     if (!isObj(raw)) throw new Error(`ツアー定義が不正です (${source}): オブジェクトではありません`);
     if (!isStr(raw.id)) err('id', '文字列で指定してください');
     if (!isStr(raw.title)) err('title', '文字列で指定してください');
     if (!strArray(raw.match)) err('match', 'URL を1つ以上の配列で指定してください');
     if (raw.mode !== undefined && !['guide', 'practice'].includes(raw.mode)) err('mode', '"guide" か "practice" を指定してください');
+    if (raw.startPage !== undefined && !isStr(raw.startPage)) err('startPage', '文字列で指定してください');
+    checkQuery(raw.startQuery, 'startQuery');
 
     const blockRules = raw.blockRules ?? [];
     if (!Array.isArray(blockRules)) err('blockRules', '配列で指定してください');
@@ -70,19 +90,30 @@
       if (!isStr(s.content)) err(`${p}.content`, '文字列で指定してください');
       if (s.page !== undefined && !isStr(s.page)) err(`${p}.page`, '文字列で指定してください');
       if (s.side !== undefined && !SIDES.includes(s.side)) err(`${p}.side`, `${SIDES.join(' / ')} のいずれかを指定してください`);
-      if (s.target !== undefined) {
-        if (!isObj(s.target) || (!isStr(s.target.selector) && !isStr(s.target.text)))
-          err(`${p}.target`, 'selector か text の少なくとも一方を指定してください');
-        else if (s.target.selector !== undefined && !isStr(s.target.selector)) err(`${p}.target.selector`, '文字列で指定してください');
-        else if (s.target.text !== undefined && !isStr(s.target.text)) err(`${p}.target.text`, '文字列で指定してください');
-        else if (s.target.fallbacks !== undefined && !strArray(s.target.fallbacks)) err(`${p}.target.fallbacks`, '文字列の配列で指定してください');
+      checkQuery(s.pageQuery, `${p}.pageQuery`);
+      if (s.target !== undefined) checkTarget(s.target, `${p}.target`);
+      let skipIf = s.skipIf;
+      if (skipIf !== undefined) {
+        if (!isObj(skipIf) || (skipIf.page === undefined && skipIf.query === undefined && skipIf.exists === undefined)) {
+          err(`${p}.skipIf`, 'page / query / exists の少なくとも1つを指定してください');
+        } else {
+          if (skipIf.page !== undefined && !isStr(skipIf.page)) err(`${p}.skipIf.page`, '文字列で指定してください');
+          checkQuery(skipIf.query, `${p}.skipIf.query`);
+          if (typeof skipIf.exists === 'string') skipIf = { ...skipIf, exists: { selector: skipIf.exists } };
+          if (skipIf.exists !== undefined) checkTarget(skipIf.exists, `${p}.skipIf.exists`);
+        }
       }
       const advance = s.advance ?? { type: 'next' };
       if (!isObj(advance) || !ADVANCE_TYPES.includes(advance.type)) {
         err(`${p}.advance.type`, `${ADVANCE_TYPES.join(' / ')} のいずれかを指定してください`);
       } else {
         if (advance.type === 'key' && !isStr(advance.key)) err(`${p}.advance.key`, 'キー名（例: "Enter"）を指定してください');
-        if (advance.type === 'navigate' && !isStr(advance.path)) err(`${p}.advance.path`, '遷移先のパスを指定してください');
+        if (advance.type === 'navigate') {
+          if (advance.path === undefined && advance.query === undefined)
+            err(`${p}.advance`, '遷移先の path か query の少なくとも一方を指定してください');
+          if (advance.path !== undefined && !isStr(advance.path)) err(`${p}.advance.path`, '文字列で指定してください');
+          checkQuery(advance.query, `${p}.advance.query`);
+        }
         if (advance.type === 'input' && advance.pattern !== undefined) {
           try {
             new RegExp(advance.pattern);
@@ -91,7 +122,7 @@
           }
         }
       }
-      return { ...s, advance };
+      return { ...s, advance, skipIf };
     });
 
     if (errors.length) throw new Error(`ツアー定義が不正です (${source}):\n${errors.join('\n')}`);

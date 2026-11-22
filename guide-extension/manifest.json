@@ -3,13 +3,22 @@
   "name": "新人研修",
   "version": "0.1.0",
   "description": "業務Webシステムの画面上で操作手順を案内する新人教育用ガイド",
-  "permissions": ["storage"],
-  "background": { "service_worker": "background.js" },
+  "permissions": [
+    "storage"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
   "content_scripts": [
     {
-      "matches": ["https://www.google.com/*", "https://www.google.co.jp/*"],
+      "matches": [
+        "<all_urls>"
+      ],
       "run_at": "document_idle",
-      "css": ["lib/driver.js/driver.css", "styles/popover.css"],
+      "css": [
+        "lib/driver.js/driver.css",
+        "styles/popover.css"
+      ],
       "js": [
         "lib/driver.js/driver.js.iife.js",
         "site/config.js",
@@ -21,6 +30,7 @@
         "content/progress-store.js",
         "content/tour-repository.js",
         "content/highlighter.js",
+        "content/navigation-watcher.js",
         "content/tour-engine.js",
         "content/url-watcher.js",
         "content/panel.js",
@@ -30,8 +40,12 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["styles/panel.css"],
-      "matches": ["https://www.google.com/*", "https://www.google.co.jp/*"]
+      "resources": [
+        "styles/panel.css"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
     }
   ]
 }

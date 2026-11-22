@@ -1,11 +1,14 @@
 /**
  * 「操作待ちステップ」の完了条件を監視する。戻り値の関数を呼ぶと監視を解除する。
+ * element には要素そのもの、または「今の対象要素を返す関数」を渡す。
+ * （画面側のスクリプトが要素を作り直す場合に、新しい要素で判定できるようにするため）
  * navigate 型はページ遷移を伴うため、ここではなくエンジン側（URL 監視）で扱う。
  */
 (() => {
   const G = (globalThis.GuideExt ??= {});
 
-  G.watchAdvance = function watchAdvance(advance, element, onSatisfied, guard) {
+  G.watchAdvance = function watchAdvance(advance, elementOrGetter, onSatisfied, guard) {
+    const target = () => (typeof elementOrGetter === 'function' ? elementOrGetter() : elementOrGetter);
     const disposers = [];
     let fired = false;
     const fire = () => {
@@ -19,7 +22,7 @@
       disposers.push(() => window.removeEventListener(type, fn, true));
     };
     const within = (t, el) => !!el && t instanceof Node && (el === t || el.contains(t));
-    const clickTarget = () => (advance.type === 'click' && advance.selector ? document.querySelector(advance.selector) : element);
+    const clickTarget = () => (advance.type === 'click' && advance.selector ? document.querySelector(advance.selector) : target());
 
     switch (advance.type) {
       case 'click':
@@ -31,7 +34,7 @@
         const re = advance.pattern ? new RegExp(advance.pattern) : null;
         const min = advance.minLength ?? 1;
         listen('input', (e) => {
-          if (!within(e.target, element)) return;
+          if (!within(e.target, target())) return;
           const value = e.target.value ?? '';
           if (value.length >= min && (!re || re.test(value))) fire();
         });
@@ -39,7 +42,7 @@
       }
       case 'key':
         listen('keydown', (e) => {
-          if (!e.isComposing && e.key === advance.key && within(e.target, element)) fire();
+          if (!e.isComposing && e.key === advance.key && within(e.target, target())) fire();
         });
         break;
     }

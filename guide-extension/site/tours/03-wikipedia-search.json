@@ -1,0 +1,98 @@
+{
+  "id": "wikipedia-search",
+  "title": "Wikipediaで記事を検索して読む",
+  "description": "キーワードで記事を探し、記事ページの見方を確認する",
+  "match": [
+    "https://ja.wikipedia.org/*"
+  ],
+  "startPage": "/wiki/*",
+  "mode": "guide",
+  "steps": [
+    {
+      "id": "welcome",
+      "page": "/wiki/*",
+      "title": "ようこそ",
+      "content": "このガイドでは、Wikipedia で記事を検索して、記事ページの見方を確認します。"
+    },
+    {
+      "id": "type-keyword",
+      "page": "/wiki/*",
+      "target": {
+        "selector": "#searchform input[name='search']",
+        "fallbacks": [
+          "#searchInput",
+          "input[name='search']"
+        ]
+      },
+      "title": "キーワードを入力",
+      "content": "検索欄をクリックして、調べたい言葉を入力してください。<br>例：「富士山」",
+      "advance": {
+        "type": "input",
+        "minLength": 1
+      },
+      "side": "bottom"
+    },
+    {
+      "id": "run-search",
+      "page": "/wiki/*",
+      "target": {
+        "selector": "#searchform input[name='search']",
+        "fallbacks": [
+          "#searchInput",
+          "input[name='search']"
+        ]
+      },
+      "title": "検索を実行",
+      "content": "<b>Enter キー</b>を押して検索します。",
+      "advance": {
+        "type": "key",
+        "key": "Enter"
+      },
+      "side": "bottom"
+    },
+    {
+      "id": "heading",
+      "page": "/wiki/*",
+      "target": {
+        "selector": "#firstHeading"
+      },
+      "title": "記事のタイトル",
+      "content": "開いた記事のタイトルです。検索した言葉と完全に一致する記事があると、直接その記事が開きます。",
+      "side": "bottom"
+    },
+    {
+      "id": "toc",
+      "page": "/wiki/*",
+      "target": {
+        "selector": "#vector-toc",
+        "fallbacks": [
+          "#toc"
+        ]
+      },
+      "title": "目次",
+      "content": "記事の見出しの一覧です。クリックすると、その節まで移動します。",
+      "side": "right"
+    },
+    {
+      "id": "history-tab",
+      "page": "/wiki/*",
+      "target": {
+        "selector": "#ca-history",
+        "text": "履歴"
+      },
+      "title": "履歴タブ",
+      "content": "この記事が、いつ・誰に編集されたかを確認できます（「記事の編集履歴を確認する」ガイドで詳しく説明します）。",
+      "side": "bottom"
+    },
+    {
+      "id": "languages",
+      "page": "/wiki/*",
+      "target": {
+        "selector": "#p-lang-btn"
+      },
+      "title": "ほかの言語で読む",
+      "content": "同じ内容の記事を、英語など別の言語版で読めます。",
+      "side": "left"
+    }
+  ]
+}

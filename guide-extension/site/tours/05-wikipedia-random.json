@@ -1,0 +1,55 @@
+{
+  "id": "wikipedia-random",
+  "title": "メインメニューから記事をおまかせ表示",
+  "description": "メインメニューを開き、無作為に選ばれた記事を表示する",
+  "match": [
+    "https://ja.wikipedia.org/*"
+  ],
+  "startPage": "/wiki/*",
+  "mode": "guide",
+  "steps": [
+    {
+      "id": "open-menu",
+      "page": "/wiki/*",
+      "target": {
+        "selector": "#vector-main-menu-dropdown-label",
+        "fallbacks": [
+          "label[for='vector-main-menu-dropdown-checkbox']"
+        ]
+      },
+      "title": "メインメニューを開く",
+      "content": "左上の「≡」ボタンをクリックして、メインメニューを開きます。<br>（メニューをサイドバーに固定している場合、このステップは自動で飛ばされます）",
+      "advance": {
+        "type": "click"
+      },
+      "skipIf": {
+        "exists": "#n-randompage a"
+      },
+      "side": "right"
+    },
+    {
+      "id": "random",
+      "page": "/wiki/*",
+      "target": {
+        "selector": "#n-randompage a",
+        "text": "おまかせ表示"
+      },
+      "title": "おまかせ表示",
+      "content": "「おまかせ表示」をクリックすると、無作為に選ばれた記事が開きます。",
+      "advance": {
+        "type": "click"
+      },
+      "side": "right"
+    },
+    {
+      "id": "result",
+      "page": "/wiki/*",
+      "target": {
+        "selector": "#firstHeading"
+      },
+      "title": "選ばれた記事",
+      "content": "無作為に選ばれた記事が開きました。知らなかった分野の記事に出会えます。",
+      "side": "bottom"
+    }
+  ]
+}

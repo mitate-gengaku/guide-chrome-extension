@@ -1,0 +1,117 @@
+{
+  "id": "wikipedia-diff",
+  "title": "記事の変更箇所を確認する（途中から再開できる例）",
+  "description": "記事 → 履歴 → 差分の3画面。途中で閉じても、今いる画面から再開します",
+  "match": [
+    "https://ja.wikipedia.org/*"
+  ],
+  "mode": "guide",
+  "steps": [
+    {
+      "id": "open-history",
+      "page": "/wiki/*",
+      "target": {
+        "selector": "#ca-history",
+        "text": "履歴"
+      },
+      "title": "① 履歴を開く",
+      "content": "「履歴を表示」をクリックしてください。",
+      "advance": {
+        "type": "navigate",
+        "path": "/w/index.php",
+        "query": {
+          "action": "history"
+        }
+      },
+      "skipIf": {
+        "page": "/w/index.php",
+        "query": {
+          "diff": "*"
+        }
+      },
+      "side": "bottom"
+    },
+    {
+      "id": "history-intro",
+      "page": "/w/index.php",
+      "pageQuery": {
+        "action": "history"
+      },
+      "target": {
+        "selector": "#pagehistory"
+      },
+      "title": "② 版の一覧",
+      "content": "記事が編集されるたびに「版」が1つ増えます。各行の「前」から、その編集で何が変わったかを確認できます。",
+      "skipIf": {
+        "page": "/w/index.php",
+        "query": {
+          "diff": "*"
+        }
+      }
+    },
+    {
+      "id": "open-diff",
+      "page": "/w/index.php",
+      "pageQuery": {
+        "action": "history"
+      },
+      "target": {
+        "selector": "#pagehistory li a.mw-history-histlinks-previous",
+        "text": "前"
+      },
+      "title": "③ 差分を開く",
+      "content": "一番上の行の「前」をクリックすると、最新の編集で変わった箇所が表示されます。",
+      "advance": {
+        "type": "navigate",
+        "path": "/w/index.php",
+        "query": {
+          "diff": "*"
+        }
+      },
+      "side": "right"
+    },
+    {
+      "id": "diff-table",
+      "page": "/w/index.php",
+      "pageQuery": {
+        "diff": "*"
+      },
+      "target": {
+        "selector": "table.diff"
+      },
+      "title": "④ 差分の画面",
+      "content": "左が変更前、右が変更後の版です。"
+    },
+    {
+      "id": "diff-lines",
+      "page": "/w/index.php",
+      "pageQuery": {
+        "diff": "*"
+      },
+      "target": {
+        "selector": ".diff-addedline",
+        "fallbacks": [
+          ".diff-deletedline",
+          "table.diff"
+        ]
+      },
+      "title": "⑤ 変わった箇所",
+      "content": "色の付いた行が変更箇所です。追加・変更された文字は強調して表示されます。",
+      "side": "top"
+    },
+    {
+      "id": "prev-diff",
+      "page": "/w/index.php",
+      "pageQuery": {
+        "diff": "*"
+      },
+      "target": {
+        "selector": "#differences-prevlink",
+        "text": "古い編集"
+      },
+      "title": "⑥ さらに前の変更へ",
+      "content": "「← 古い編集」で、1つ前の編集の差分に移れます。以上でガイドは完了です。",
+      "side": "bottom"
+    }
+  ]
+}

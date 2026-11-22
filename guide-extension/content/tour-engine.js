@@ -4,10 +4,16 @@
  *
  * 状態（status）:
  *   loading / idle（未実行）/ running（表示中）/ waiting-page（次のステップは別の画面）
- *   element-missing（対象が見つからない）/ completed（完了直後）/ error（読み込み失敗）
+ *   element-missing（対象が見つからない）/ transition（操作の直後、画面遷移を待っている）
+ *   completed（完了直後）/ error（読み込み失敗）
  */
 (() => {
   const G = (globalThis.GuideExt ??= {});
+
+  /** クリック・キー操作のあと、画面遷移が始まるかを待つ時間（ミリ秒） */
+  const NAV_GRACE_MS = 400;
+  /** 遷移が始まったのにページが切り替わらなかった場合（取り消し等）に、元の画面で表示し直すまでの時間 */
+  const LEAVE_FALLBACK_MS = 5000;
 
   const INSTRUCTIONS = {
     click: () => 'クリックすると次に進みます',
@@ -100,6 +106,37 @@
       this.#patch({ completedTourIds: await this.deps.store.completedTourIds() });
     };
 
+    /**
+     * 操作待ちステップの条件を満たしたときの処理。
+     * クリックやキー操作は画面遷移を起こすことがあるため、次のステップをすぐには表示しない。
+     * 進捗だけ先に保存し、遷移が始まったら新しい画面に任せ、始まらなければこの画面で表示する。
+     */
+    #advanceFromAction = async (advanceType) => {
+      if (advanceType !== 'click' && advanceType !== 'key') return this.next();
+      const { tour, stepIndex } = this.#state;
+      if (!tour) return;
+      const nextIndex = stepIndex + 1;
+
+      this.#teardownStep(); // 古い吹き出しはすぐ消す
+      if (nextIndex >= tour.steps.length) return this.#complete(tour);
+
+      // ページが切り替わっても続きから表示できるよう、遷移が始まる前に進捗を保存する
+      this.#patch({ stepIndex: nextIndex, status: 'transition', message: null });
+      const saved = this.#persist();
+      const nav = await G.waitForNavigationStart(NAV_GRACE_MS);
+      await saved;
+
+      const stillHere = () => this.#state.tour?.id === tour.id && this.#state.stepIndex === nextIndex;
+      if (!stillHere()) return; // 待っている間に中断・別の操作があった
+
+      if (nav === 'leaving') {
+        // 通常は新しい画面が開いてこのページは消える。消えなかったとき（遷移の取り消しなど）だけ、ここで表示する
+        await new Promise((r) => setTimeout(r, LEAVE_FALLBACK_MS));
+        if (!stillHere() || this.#state.status !== 'transition') return;
+      }
+      await this.#evaluate();
+    };
+
     /** URL が変わったとき（通常の遷移・SPA の遷移の両方）に呼ぶ */
     async onUrlChange() {
       this.#patch({ availableTours: G.toursForUrl(this.#allTours, this.#url()) });
@@ -112,8 +149,23 @@
       return new URL(location.href);
     }
 
+    /** ステップを表示する画面か（page と pageQuery の両方で判定） */
     #pageMatches(step) {
-      return !step?.page || G.matchGlob(step.page, location.pathname);
+      return !step || G.matchPage(step.page, step.pageQuery, this.#url());
+    }
+
+    /** 画面遷移待ちのステップで、すでに遷移先にいるか */
+    #alreadyNavigated(step) {
+      return step?.advance.type === 'navigate' && G.matchPage(step.advance.path, step.advance.query, this.#url());
+    }
+
+    /** skipIf の条件（書かれたものすべて）を満たしているか */
+    #shouldSkip(step) {
+      const cond = step?.skipIf;
+      if (!cond) return false;
+      if ((cond.page || cond.query) && !G.matchPage(cond.page, cond.query, this.#url())) return false;
+      if (cond.exists && !G.resolveTarget(cond.exists)) return false;
+      return true;
     }
 
     async #goTo(index) {
@@ -155,7 +207,13 @@
       if (tour.mode === 'practice') this.deps.guard.enable(tour.blockRules);
 
       // 画面遷移待ちのステップで、すでに遷移先にいれば完了扱い
-      if (step.advance.type === 'navigate' && G.matchGlob(step.advance.path, location.pathname)) {
+      if (this.#alreadyNavigated(step)) {
+        return this.#goTo(stepIndex + 1);
+      }
+
+      // skipIf の条件を満たしていれば（もう済んでいる操作なら）飛ばす
+      if (this.#shouldSkip(step)) {
+        this.deps.report?.({ type: 'step-skipped', tourId: tour.id, stepId: step.id });
         return this.#goTo(stepIndex + 1);
       }
 
@@ -198,24 +256,49 @@
 
       const prev = tour.steps[index - 1];
       const waitsForAction = step.advance.type !== 'next';
+      let current = element; // 今ハイライトしている要素（作り直されたら差し替える）
 
-      this.deps.highlighter.show({
-        element,
+      const request = {
         title: step.title,
         description: step.content,
         side: step.side,
         progressText: `${index + 1} / ${tour.steps.length}`,
         showNext: !waitsForAction,
-        // 前のステップが別画面・遷移待ちなら戻れない
-        showPrevious: !!prev && prev.advance.type !== 'navigate' && this.#pageMatches(prev),
+        // 前のステップが別画面・遷移待ち・飛ばす条件を満たしている場合は、戻ってもすぐ進んでしまうので戻れない
+        showPrevious: !!prev && prev.advance.type !== 'navigate' && this.#pageMatches(prev) && !this.#shouldSkip(prev),
         nextLabel: index === tour.steps.length - 1 ? '完了' : '次へ',
         instruction: waitsForAction ? INSTRUCTIONS[step.advance.type](step.advance) : undefined,
         onNext: () => this.next(),
         onPrevious: () => this.previous(),
         onClose: () => this.abort(),
-      });
+      };
+      this.deps.highlighter.show({ ...request, element: current });
 
-      this.#stepDisposers.push(G.watchAdvance(step.advance, element, () => this.next(), this.deps.guard));
+      // 画面側のスクリプトが対象の要素を作り直すことがある（例: クリックすると入力欄が新しい部品に置き換わる）。
+      // 元の要素がページから消えたら探し直し、ハイライトと操作の判定を新しい要素に移す。
+      let shown = current; // ハイライト中の要素
+      const refresh = () => {
+        if (step.target && !current?.isConnected) {
+          const found = G.resolveTarget(step.target);
+          if (found) current = found.element;
+        }
+        return current;
+      };
+      if (step.target) {
+        const timer = setInterval(() => {
+          refresh();
+          if (current !== shown) {
+            shown = current;
+            this.deps.highlighter.show({ ...request, element: current });
+          }
+        }, 300);
+        this.#stepDisposers.push(() => clearInterval(timer));
+      }
+
+      // 操作の判定は、イベントが起きた時点の要素で行う（作り直された直後の入力も取りこぼさない）
+      this.#stepDisposers.push(
+        G.watchAdvance(step.advance, refresh, () => this.#advanceFromAction(step.advance.type), this.deps.guard),
+      );
     }
 
     #teardownStep() {

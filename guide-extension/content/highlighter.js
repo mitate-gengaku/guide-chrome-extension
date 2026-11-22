@@ -21,6 +21,9 @@
         animate: true,
         allowKeyboardControl: false, // 矢印キーで操作待ちステップを飛ばさないよう無効化
         overlayClickBehavior: 'none', // 暗い部分をクリックしてもガイドを閉じない
+        // 吹き出しにフォーカスを移さない。移すと、フォーカスが外れたら閉じるメニュー（ドロップダウン）が
+        // 吹き出しの表示と同時に閉じてしまい、利用者が操作できなくなるため
+        focus: 'none',
         allowClose: true,
         stagePadding: 6,
         stageRadius: 6,

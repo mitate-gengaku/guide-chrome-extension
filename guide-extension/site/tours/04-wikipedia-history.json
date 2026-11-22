@@ -1,0 +1,86 @@
+{
+  "id": "wikipedia-history",
+  "title": "記事の編集履歴を確認する",
+  "description": "履歴タブを開き、過去の版の一覧の見方を確認する（履歴の画面からも開始できます）",
+  "match": [
+    "https://ja.wikipedia.org/*"
+  ],
+  "mode": "guide",
+  "steps": [
+    {
+      "id": "open-history",
+      "page": "/wiki/*",
+      "target": {
+        "selector": "#ca-history",
+        "text": "履歴"
+      },
+      "title": "履歴タブを開く",
+      "content": "「履歴を表示」をクリックしてください。",
+      "advance": {
+        "type": "navigate",
+        "path": "/w/index.php",
+        "query": {
+          "action": "history"
+        }
+      },
+      "side": "bottom"
+    },
+    {
+      "id": "history-list",
+      "page": "/w/index.php",
+      "pageQuery": {
+        "action": "history"
+      },
+      "target": {
+        "selector": "#pagehistory"
+      },
+      "title": "版の一覧",
+      "content": "記事が編集されるたびに「版」が1つ増えます。新しい版が上に並びます。"
+    },
+    {
+      "id": "history-row",
+      "page": "/w/index.php",
+      "pageQuery": {
+        "action": "history"
+      },
+      "target": {
+        "selector": "#pagehistory li"
+      },
+      "title": "1行が1つの版",
+      "content": "編集した日時、編集者、変更したバイト数、編集内容の要約が並びます。",
+      "side": "bottom"
+    },
+    {
+      "id": "compare",
+      "page": "/w/index.php",
+      "pageQuery": {
+        "action": "history"
+      },
+      "target": {
+        "selector": ".mw-history-compareselectedversions-button",
+        "text": "版を比較"
+      },
+      "title": "版を比較する",
+      "content": "行の左にある丸で2つの版を選んでこのボタンを押すと、どこが変わったかを確認できます。",
+      "side": "bottom"
+    },
+    {
+      "id": "back-to-article",
+      "page": "/w/index.php",
+      "pageQuery": {
+        "action": "history"
+      },
+      "target": {
+        "selector": "#ca-view",
+        "text": "閲覧"
+      },
+      "title": "記事に戻る",
+      "content": "「閲覧」をクリックすると記事に戻ります。戻るとガイドは完了です。",
+      "advance": {
+        "type": "navigate",
+        "path": "/wiki/*"
+      },
+      "side": "bottom"
+    }
+  ]
+}

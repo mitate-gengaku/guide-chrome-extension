@@ -74,7 +74,6 @@
   color: #fff;
 }
 .gx-title { font-weight: 700; font-size: 14px; }
-.gx-version { font-weight: 400; font-size: 11px; opacity: 0.75; margin-left: 4px; }
 .gx-icon-btn {
   border: none;
   background: transparent;
@@ -160,3 +159,90 @@
 .gx-diag code { font-size: 11px; background: #fff; padding: 1px 4px; border-radius: 4px; word-break: break-all; }
 .gx-link-btn { font: inherit; font-size: 11px; color: var(--gx-muted); background: none; border: none; padding: 0 2px; cursor: pointer; text-decoration: underline; }
 .gx-link-btn:hover { color: var(--gx-alert); }
+.gx-list-scroll { overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; padding-right: 2px; }
+.gx-list-scroll::-webkit-scrollbar { width: 6px; }
+.gx-list-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+.gx-list-count { margin: 8px 0 0; font-size: 11px; color: var(--gx-muted); text-align: right; }
+
+/* ---- 一覧の下部（件数・すべて表示） ---- */
+.gx-list-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+.gx-list-footer .gx-list-count { margin: 0; }
+.gx-btn-small { font-size: 12px; padding: 4px 10px; }
+.gx-item[hidden] { display: none; }
+
+/* ---- 全件表示ダイアログ（画面全体） ---- */
+.gx-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  background: rgba(15, 23, 42, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  font-family: system-ui, -apple-system, 'Hiragino Sans', 'Yu Gothic UI', 'Meiryo', sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #1f2937;
+  animation: gx-fade 0.15s ease-out;
+  --gx-primary: #1f5fbf;
+  --gx-primary-hover: #184c9a;
+  --gx-practice: #b45309;
+  --gx-practice-bg: #fef3c7;
+  --gx-success: #15803d;
+  --gx-success-bg: #dcfce7;
+  --gx-alert: #b91c1c;
+  --gx-text: #1f2937;
+  --gx-muted: #6b7280;
+  --gx-border: #e5e7eb;
+}
+@keyframes gx-fade { from { opacity: 0; } to { opacity: 1; } }
+.gx-dialog {
+  width: 100%;
+  max-width: 960px;
+  height: 100%;
+  max-height: 860px;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.3);
+  overflow: hidden;
+}
+.gx-dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px 14px 24px;
+  background: var(--gx-primary);
+  color: #fff;
+}
+.gx-dialog-heading { display: flex; align-items: baseline; gap: 12px; }
+.gx-dialog-title { font-size: 16px; font-weight: 700; }
+.gx-dialog-count { font-size: 12px; opacity: 0.85; }
+.gx-dialog-close { font-size: 22px; }
+.gx-dialog-toolbar { padding: 14px 24px; border-bottom: 1px solid var(--gx-border); }
+.gx-dialog-search {
+  width: 100%;
+  box-sizing: border-box;
+  font: inherit;
+  font-size: 14px;
+  padding: 9px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  outline: none;
+}
+.gx-dialog-search:focus { border-color: var(--gx-primary); box-shadow: 0 0 0 3px rgba(31, 95, 191, 0.15); }
+.gx-dialog-body { flex: 1; overflow-y: auto; overscroll-behavior: contain; padding: 16px 24px 24px; }
+.gx-dialog-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 12px;
+}
+.gx-dialog-empty { text-align: center; padding: 40px 0; }
+.gx-dialog-empty[hidden] { display: none; }
+.gx-url-list { list-style: none; padding-left: 0 !important; max-height: 120px; overflow-y: auto; }
+.gx-url-list li { margin-bottom: 4px !important; }
