@@ -205,7 +205,7 @@
         </div>
         <div class="gx-progress"><div class="gx-progress-bar" style="width:${((stepIndex + 1) / total) * 100}%"></div></div>
         <p class="gx-step">${stepIndex + 1} / ${total}　${esc(step?.title)}</p>
-        ${status === 'waiting-page' ? `<p class="gx-info">${esc(message)}</p>` : ''}
+        ${['waiting-page', 'other-site'].includes(status) ? `<p class="gx-info">${esc(message)}</p>` : ''}
         ${status === 'element-missing' ? `<p class="gx-alert">${esc(message)}</p>` : ''}
         <div class="gx-actions">
           ${status === 'element-missing' ? '<button class="gx-btn" data-action="retry">再試行</button><button class="gx-btn" data-action="skip">スキップ</button>' : ''}

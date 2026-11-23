@@ -15,7 +15,7 @@
  *     id, title, content,
  *     page?: "/path*",                // このステップを表示する画面のパス（glob）
  *     pageQuery?: { key: "値" },      // このステップを表示する画面のクエリ（例: { "screen": "order" }）
- *     target?: { selector?, fallbacks?: [..], text? },   // selector と text の少なくとも一方
+ *     target?: { selector?, fallbacks?: [..], text?, textFallback? },   // selector と text の少なくとも一方
  *              // selector + text →「selector に一致し、text を含む要素」（例: "button" + "Log in"）
  *     advance?: { type: "next" }                        // 既定
  *             | { type: "click", selector? }
@@ -52,6 +52,8 @@
         return err(path, 'selector か text の少なくとも一方を指定してください');
       if (v.selector !== undefined && !isStr(v.selector)) err(`${path}.selector`, '文字列で指定してください');
       if (v.text !== undefined && !isStr(v.text)) err(`${path}.text`, '文字列で指定してください');
+      if (v.textFallback !== undefined && typeof v.textFallback !== 'boolean')
+        err(`${path}.textFallback`, 'true か false で指定してください');
       if (v.fallbacks !== undefined && !strArray(v.fallbacks)) err(`${path}.fallbacks`, '文字列の配列で指定してください');
     };
 

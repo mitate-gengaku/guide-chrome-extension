@@ -15,6 +15,12 @@
       const r = await area.get(KEY_ACTIVE);
       return r[KEY_ACTIVE] ?? null;
     },
+    /** 進捗・完了記録が（ほかのタブも含めて）変わったときに呼ばれる関数を登録する */
+    onChange(cb) {
+      area.onChanged.addListener((changes) => {
+        if (KEY_ACTIVE in changes || KEY_DONE in changes) cb();
+      });
+    },
     async save(progress) {
       await area.set({ [KEY_ACTIVE]: progress });
     },
